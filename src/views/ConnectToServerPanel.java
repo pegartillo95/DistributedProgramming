@@ -1,7 +1,7 @@
-package borja.lab5.views;
+package views;
 
-import borja.lab5.Client;
-import borja.lab5.Server;
+import logic.Client;
+import logic.Server;
 
 import javax.swing.*;
 import java.awt.*;

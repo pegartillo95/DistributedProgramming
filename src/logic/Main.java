@@ -1,6 +1,5 @@
-package borja.lab5;
-
-import borja.lab5.views.ClientWindow;
+package logic;
+import views.ClientWindow;
 
 import java.io.IOException;
 
