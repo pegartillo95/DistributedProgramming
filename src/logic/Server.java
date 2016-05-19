@@ -11,15 +11,14 @@ import java.util.Hashtable;
 
 public class Server extends Thread {
 
-    private Hashtable tUsers = new Hashtable<Integer, ClientInfo>(); // Key = ClientID | Value = ClientInformation
+    private Hashtable tUsers = new Hashtable<Integer, UserInfo>(); // Key = ClientID | Value = ClientInformation
     private Hashtable tChannels = new Hashtable<Integer, PrintWriter>(); // Key = ClientID | Value = Fout
     
     public static final String IPServer = "127.0.0.1";
     public static final int PortServer = 5556;
     
     ServerSocket listen;
-    
-    
+        
     @Override
     public void run() {
         initializeServer();
@@ -74,6 +73,15 @@ public class Server extends Thread {
 			
 		}
 		
+		public void initializeClientListener() {
+			try {
+				this.fOut = new ObjectOutputStream(this.socket.getOutputStream());
+				this.fIn = new ObjectInputStream(this.socket.getInputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		public void executeMessage(int msgType) {
 			switch (msgType) {
 			case 0:
@@ -88,15 +96,6 @@ public class Server extends Thread {
 				break;
 			default:
 				break;
-			}
-		}
-		
-		public void initializeClientListener() {
-			try {
-				this.fIn = new ObjectInputStream(this.socket.getInputStream());
-				this.fOut = new ObjectOutputStream(this.socket.getOutputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 	    
