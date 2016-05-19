@@ -2,28 +2,32 @@ package logic;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Hashtable;
 
-public class Server extends Thread{
+public class Server extends Thread {
 
+    private Hashtable tUsers = new Hashtable<Integer, ClientInfo>(); // Key = ClientID | Value = ClientInformation
+    private Hashtable tChannels = new Hashtable<Integer, PrintWriter>(); // Key = ClientID | Value = Fout
+    
     public static final String IPServer = "127.0.0.1";
     public static final int PortServer = 5556;
-
+    
     ServerSocket listen;
-    Socket socket;
-
-    BufferedReader readChannel;
-    PrintWriter writeChannel;
-
+    
+    
     @Override
     public void run() {
         initializeServer();
 
         while(true) {
             try {
-                readInputAndPrintToConsole();
+            	Socket s = listen.accept();
+            	(new ClientListener(s)).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -33,13 +37,6 @@ public class Server extends Thread{
     private void initializeServer() {
         try {
             listen = new ServerSocket(PortServer);
-            socket = listen.accept();
-
-            readChannel =
-                    new BufferedReader(
-                            new InputStreamReader(socket.getInputStream()));
-            writeChannel = new PrintWriter(socket.getOutputStream());
-
             System.out.println("Server started.");
             System.out.println("Listening on " + Server.IPServer + ":" + Server.PortServer);
         } catch (IOException e) {
@@ -47,7 +44,61 @@ public class Server extends Thread{
         }
     }
 
-    private void readInputAndPrintToConsole() throws IOException {
-        System.out.println(readChannel.readLine());
+    class ClientListener extends Thread {
+    	
+        Socket socket;
+        ObjectInputStream fIn; // fin
+        ObjectOutputStream fOut; // fout
+        
+        public ClientListener(Socket s) {
+        	this.socket = s;
+        	initializeClientListener();
+        }
+
+		@Override
+		public void run() {
+			
+			initializeClientListener();
+			
+			while(true) {
+				
+				try {
+					Message msg = (Message) fIn.readObject();
+					executeMessage(msg.getType());
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}			
+			}
+			
+		}
+		
+		public void executeMessage(int msgType) {
+			switch (msgType) {
+			case 0:
+				// Mensaje conexión
+				
+				break;
+			case 1:
+				// Mensaje lista de usuarios
+				break;
+			case 2:
+				// Emitir ficheros
+				break;
+			default:
+				break;
+			}
+		}
+		
+		public void initializeClientListener() {
+			try {
+				this.fIn = new ObjectInputStream(this.socket.getInputStream());
+				this.fOut = new ObjectOutputStream(this.socket.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	    
     }
 }
